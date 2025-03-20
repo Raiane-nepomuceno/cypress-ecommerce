@@ -1,0 +1,27 @@
+{
+  "name": "cypress-ecommerce",
+  "version": "1.0.0",
+  "description": "É um projeto prático com o intuito de automatizar casos de testes do e-commerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Raiane-nepomuceno/cypress-ecommerce.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Raiane-nepomuceno/cypress-ecommerce/issues"
+  },
+  "homepage": "https://github.com/Raiane-nepomuceno/cypress-ecommerce#readme",
+  "devDependencies": {
+    "cypress": "^13.12.0"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "cpf-cnpj-validator": "^1.0.3"
+  }
+}
