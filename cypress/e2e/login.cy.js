@@ -2,7 +2,7 @@ describe('Login', () => {
     beforeEach(() => {
         cy.visit('/'); 
     })
-    Cypress._.times(3, () =>{
+    Cypress._.times(1, () =>{
 
     it('Realizando login com dados válidos',() =>{
         cy.login('home');

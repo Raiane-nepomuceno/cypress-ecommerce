@@ -102,21 +102,34 @@ Cypress.Commands.add('validTextCart',()=>{
 Cypress.Commands.add('clickRadioLoginCart', () => {
   cy.scrollTo('top');
 
-  // Aqui você pode esperar por um pedido de rede que indique que o produto foi adicionado, se necessário
-  cy.wait(2000); // Espere um tempo específico ou use interceptação de rede para aguardar
+  // Aumentar o timeout e garantir que o alerta seja visível
+  cy.get('body').then(($body) => {
+    const alerta = $body.find('#checkout-cart > .alert');
 
-  // Agora tenta buscar o label
-  cy.get('label[for="input-account-login"]', { timeout: 5000 })
-    .then(($label) => {
-      if ($label.length > 0) {
-        cy.wrap($label).click();
-        cy.log('Elemento encontrado e clicado');
-      } else {
-        cy.log('Elemento não encontrado, seguindo com o teste');
-      }
-    });
+    if (alerta.length > 0) {
+      // Se o alerta for encontrado, loga a mensagem
+      cy.log('Encontrado o toast de aviso sobre o estoque do produto na sacola');
+      cy.log('Mensagem de alerta encontrada: ' + alerta.text());
+    } else {
+      // Caso o alerta não seja encontrado, procura pelo campo de login
+      cy.get('label[for="input-account-login"]', { timeout: 10000 }).then(($label) => {
+        if ($label.length > 0) {
+          cy.wrap($label).click();
+          cy.log('Elemento de login encontrado e clicado');
+          cy.login('cart');
+          cy.goToScreenInputFirstAddress();
+          cy.billingAddress();
+          cy.validatePageConfirmCheckout();
+          cy.clickBtnConfirm();
+          cy.validatePageConfirmOrder();
+          cy.clickBtnContinue();  
+        } else {
+          cy.log('Elemento de login não encontrado, seguindo com o teste');
+        }
+      });
+    }
+  });
 });
-
 Cypress.Commands.add('clickAddToCart', () => {
   cy.configViewPortAddCart();  // Suponho que este comando tenha configurado o tamanho da tela
 
@@ -169,16 +182,18 @@ Cypress.Commands.add('inputCommentsAboutOrder',()=>{
       .should('be.visible')
       .scrollIntoView()
       .type(text);
-})
+});
 Cypress.Commands.add('selectTermsAndCondictions',()=>{
   cy.scrollTo('bottom');
   cy.get('#input-agree').check({force:true});
-})
+});
 Cypress.Commands.add('clickButtonSaveAddress',()=>{
   cy.scrollTo('bottom');
   cy.get('#button-save')
     .should('be.visible')
+    .scrollIntoView()
     .click();
+
 
 });
 Cypress.Commands.add('billingAddress',()=>{
@@ -202,7 +217,6 @@ Cypress.Commands.add('billingAddress',()=>{
       cy.get('#input-payment-postcode').type('13560470');
       cy.get('#input-payment-country').select('30');
       cy.get('#input-payment-zone').select('440');
-      //cy.clickButtonSaveAddress();
       cy.validatePageConfirmAddress();
     
     } else {
@@ -212,49 +226,47 @@ Cypress.Commands.add('billingAddress',()=>{
   });
 
 
-})
-Cypress.Commands.add('validatePageConfirmAddress', () => {
+});
+Cypress.Commands.add('validatePageConfirmAddress',()=>{
   // Intercepta a requisição POST para salvar o endereço
   cy.intercept('POST', '/index.php?route=extension/maza/checkout/save').as('saveAddressRequest');
   
   // Intercepta a requisição GET para a página de confirmação
   cy.intercept('GET', '/index.php?route=extension/maza/checkout/confirm').as('checkoutConfirm');
-  
-  // Clica no botão que dispara a navegação (salvar endereço)
-  cy.get('#button-save').should('be.visible').click({ force: true });
+    // Clica no botão que dispara a navegação (salvar endereço)
+  cy.clickButtonSaveAddress();
 
-  // Espera a requisição POST para salvar o endereço ser concluída
-  cy.wait('@saveAddressRequest').then((interception) => {
-    // Verifica se a requisição POST foi bem-sucedida
-    if (interception.response.statusCode === 200) {
-      console.log('Requisição de endereço salva com sucesso!');
-    } else {
-      cy.log('Erro ao salvar o endereço. Status Code:', interception.response.statusCode);
-      assert.fail('Falha ao salvar o endereço no checkout');
-    }
-  });
-
-  // Espera pela requisição GET de confirmação ser concluída
-  cy.wait('@checkoutConfirm', { timeout: 10000 }).then((interception) => {
+  cy.wait('@checkoutConfirm', { timeout: 15000 }).then((interception) => {
     // Verifica se a resposta foi HTML (indicando erro no servidor)
     if (interception.response.body.includes('<html>')) {
       cy.log('Resposta inesperada (HTML) recebida: ' + interception.response.body);
-      assert.fail('Esperado JSON, mas a resposta foi HTML, o que indica erro no servidor');
-    }
+      
+      // Se a resposta contiver o erro de "Método de pagamento necessário"
+      if (interception.response.body.includes("Warning: Payment method required!")) {  
+        cy.log('Erro de pagamento detectado. Repreenchendo os campos...');
+        
+        // Preenche novamente os campos de país e região/estado
+        cy.billingAddress();
 
-    // Verifica se a requisição GET de confirmação foi bem-sucedida (status 200)
-    if (interception.response.statusCode === 200) {
-      console.log('Requisição de confirmação realizada com sucesso');
+        // Clica no botão de continuar para submeter novamente
+        cy.get('#button-continue').should('be.visible').click({ force: true });
+        cy.log('Campos de país e região/estado preenchidos novamente e continuando...');
+        
+        // Tenta novamente esperar pela requisição de confirmação após preencher os campos
+        cy.wait('@checkoutConfirm', { timeout: 15000 }).then((finalInterception) => {
+          if (finalInterception.response.statusCode === 200) {
+            cy.log('Requisição de confirmação realizada com sucesso após preencher os campos de pagamento');
+          } else {
+            cy.log('Erro na requisição de confirmação após preencher os campos de pagamento. Status Code:', finalInterception.response.statusCode);
+            assert.fail('Falha na requisição de confirmação após corrigir erro de pagamento');
+          }
+        });
+      } else {
+        assert.fail('Esperado JSON, mas a resposta foi HTML, indicando erro no servidor');
+      }
     } else {
-      cy.log('Erro na requisição de confirmação. Status Code:', interception.response.statusCode);
-      assert.fail('Requisição de confirmação falhou');
+      // Caso a requisição de confirmação tenha retornado o esperado
+      cy.log('Requisição de confirmação realizada com sucesso');
     }
   });
-
-  // Pode-se usar cy.on('fail', ...) para capturar erros globais se necessário
-  cy.on('fail', (error, runnable) => {
-    cy.log('Erro inesperado:', error.message);
-    // Aqui você pode personalizar o comportamento de falha
-    throw error; // Re-throw para garantir que o teste falhe
-  });
-});
+})

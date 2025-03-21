@@ -59,12 +59,15 @@ Cypress.Commands.add('clickRandomCategory', () => {
   
     // Mostra o elemento (se estiver oculto) e então clica
     cy.get('#entry_212462 > .icon-left')
-     //.invoke('css', 'display', 'inline-block')  // Modifica a propriedade CSS para garantir que o botão seja exibido      
-      .should('be.visible')
-      .click({force: true});
+       .scrollIntoView()
+       .should('be.visible')
+       .click({force: true});
   });
   Cypress.Commands.add('closeModalFilter',() =>{
-   cy.get('#entry_212478 > .icon-left > .icon').click();
+   cy.get('#entry_212478 > .icon-left > .icon')
+    .scrollIntoView()
+    .should('be.visible')
+    .click();
 
 })
 Cypress.Commands.add('clickRandomProduct', () => {

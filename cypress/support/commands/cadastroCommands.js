@@ -53,7 +53,7 @@ Cypress.Commands.add('inputForm',() =>{
 });
 
 Cypress.Commands.add('selectCheckboxTerms', () => {
-    cy.get('label[for="input-agree"]').check();
+    cy.get('label[for="input-agree"]').click();
     cy.contains('.float-right > .btn', 'Continue').click();
     //cy.validRegisterMessageSucess(email, password);
     
@@ -227,13 +227,14 @@ Cypress.Commands.add('getRandomUser', () => {
 Cypress.Commands.add('inputEmail', () => {
     cy.getRandomUser().then((randomUser) => {
         // Verifica se o campo de e-mail existe na página antes de preenchê-lo
+
         cy.get('#input-email').then(($input) => {
             if ($input.length) {  // Verifica se o campo existe (se há pelo menos um elemento)
-                $input.type(randomUser.email);
+              cy.wrap($input).type(randomUser.email);  // Envolve o elemento e chama .type()
             }
-            else{
-                cy.log('não encontrado o input do login')
+            else {
+              cy.log('Não encontrado o input do login');
             }
-        });
-    });
+          });
+              });
 });

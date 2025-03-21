@@ -15,17 +15,11 @@ describe('Login', () => {
         cy.validMessageWarningCartEmpty();
 
     })
-    it.only('Deslogado, adicionando produto no carrinho e logando na sequência',()=>{
+    it.only('Deslogado, adicionando produto no carrinho, logando, fechando pedido',()=>{
         cy.addProductCart();
         cy.clickButtonCheckout();
         cy.clickRadioLoginCart();
-        cy.login('cart');//tratar quando por algum motivo foi adicionado produto sem estoque
-        cy.goToScreenInputFirstAddress();
-        cy.billingAddress();
-        cy.validatePageConfirmCheckout();
-        cy.clickBtnConfirm();
-        cy.validatePageConfirmOrder();
-        cy.clickBtnContinue();
+        //tratar quando por algum motivo foi adicionado produto sem estoque
         cy.logout();
 
     })

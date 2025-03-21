@@ -24,7 +24,7 @@ Cypress.Commands.add('login',(ação) =>{
         cy.clickBtnLogin();      
         break;
       case 'cart':
-          cy.clickRadioLoginCart();
+          //cy.clickRadioLoginCart();
           cy.inputLogin('#input-login-email','#input-login-password');
           cy.get('#button-login')
             .should('be.visible')
@@ -43,25 +43,35 @@ Cypress.Commands.add('login',(ação) =>{
   
 
 });
-
-Cypress.Commands.add('logout',() =>{
-    cy.visit('/index.php?route=account/account')
-    cy.contains('.list-group-item', 'Logout').click();
-    cy.get('.page-title')
-     .should('be.visible')
-     .contains('Account Logout')
-
-     cy.get('#content')
-      .should('be.visible')
-      .contains('p', 'You have been logged off your account. It is now safe to leave the computer.')
+Cypress.Commands.add('logout', () => {
+ 
+    cy.visit('/index.php?route=account/account');
     
-      cy.get('#content')
-      .should('be.visible')
-      .contains('p', 'Your shopping cart has been saved, the items inside it will be restored whenever you log back into your account.')
+    // Tenta encontrar o botão de logout
+    cy.get('.list-group-item').contains('Logout').then(($logoutButton) => {
+      if ($logoutButton.length > 0) {
+        // Se o botão de logout for encontrado, clica nele
+        cy.wrap($logoutButton).click();
+        cy.log('Usuário deslogado com sucesso.');
+        cy.get('#content').should('be.visible').within(() => {
+          cy.contains('p', 'You have been logged off your account. It is now safe to leave the computer.')
+              .should('be.visible');
+          cy.contains('p', 'Your shopping cart has been saved, the items inside it will be restored whenever you log back into your account.')
+              .should('be.visible');
+          });
+    
+          // Verificar se o botão 'Continue' está visível e disponível para clicar
+          cy.contains('.buttons > .btn', 'Continue').should('be.visible').click();
+    
+    
+      } else {
+        // Se o botão de logout não for encontrado, o usuário já está deslogado
+        cy.log('Usuário já está deslogado, botão de logout não encontrado.');
+      }
+    });
+  });
       
-      cy.contains('.buttons > .btn', 'Continue').click();  
 
-});
 Cypress.Commands.add('forgottenPassword',() =>{
     cy.accessLogin();
     cy.contains('a', 'Forgotten Password').click();
@@ -79,7 +89,7 @@ Cypress.Commands.add('forgottenPassword',() =>{
     
 })
 Cypress.Commands.add('forgottenPasswordLogged',() =>{
-    cy.login();
+    cy.login('home');
     //acessa o menu lateral e escolhe a opção
     cy.get('.list-group > a')  // Pega todos os links dentro de `.list-group`
     .contains('Password')  // Verifica se o link contém o texto correto

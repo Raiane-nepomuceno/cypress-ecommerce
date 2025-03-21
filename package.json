@@ -4,8 +4,9 @@
   "description": "É um projeto prático com o intuito de automatizar casos de testes do e-commerce",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "cy:open": "cypress open",
+    "test": "cypress run"
+    },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Raiane-nepomuceno/cypress-ecommerce.git"

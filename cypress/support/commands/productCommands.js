@@ -68,40 +68,40 @@ Cypress.Commands.add('checkSelectPDP', () => {
         cy.log(`Número de opções disponíveis: ${optionsCount}`);
         
         if (optionsCount > 1) {
-          // Se houver mais de uma opção, selecionar aleatoriamente uma opção visível
+          // Filtrar opções visíveis e com valor válido (não vazio)
           cy.wrap($select).find('option')
             .filter(':visible')  // Filtra apenas as opções visíveis
-            .then(($visibleOptions) => {
-              const randomIndex = Math.floor(Math.random() * $visibleOptions.length);
-              const randomOption = $visibleOptions[randomIndex];  // Pega a opção aleatória
-              const optionValue = randomOption.value;
+            .filter((index, option) => option.value !== '')  // Filtra as opções com valor não vazio
+            .then(($validOptions) => {
+              if ($validOptions.length > 0) {
+                const randomIndex = Math.floor(Math.random() * $validOptions.length);
+                const randomOption = $validOptions[randomIndex];  // Pega a opção aleatória
+                const optionValue = randomOption.value;
 
-              cy.log('Opção selecionada: ' + optionValue);
+                cy.log('Opção selecionada: ' + optionValue);
 
-              // Verifica se o select está habilitado e visível antes de selecionar a opção
-              cy.wrap($select).should('be.visible').and('not.be.disabled');
-              
-              // Seleciona a opção aleatória
-              cy.wrap($select).select(optionValue).should('have.value', optionValue);  // Verifica se a seleção foi bem-sucedida
-              cy.clickAddToCart();
-
+                // Verifica se o select está habilitado e visível antes de selecionar a opção
+                cy.wrap($select).should('be.visible').and('not.be.disabled');
+                
+                // Seleciona a opção aleatória
+                cy.wrap($select).select(optionValue).should('have.value', optionValue);  // Verifica se a seleção foi bem-sucedida
+                cy.clickAddToCart();
+              } else {
+                // Se não houver opções válidas, registra isso
+                cy.log('Nenhuma opção válida disponível para selecionar.');
+              }
             });
-        }
-        else{
-                    // Se não houver opções válidas ou só houver a opção padrão, registra isso
+        } else {
+          // Se não houver opções válidas ou só houver a opção padrão, registra isso
           cy.log('Produto sem variações ou com apenas a opção padrão disponível.');
-          cy.log('Executando a função de adicionar um novo produto na sacola.')
-
-          // Aqui você pode adicionar um fluxo de erro ou outras ações conforme necessário
+          cy.log('Executando a função de adicionar um novo produto na sacola.');
           cy.addProductCart();
-
         }
       });
-    }else{
+    } else {
       cy.log('Produto sem seletores de variação ou com problema.');
-      // Adicionar o produto diretamente ao carrinho, por exemplo
+      // Adicionar o produto diretamente ao carrinho
       cy.clickAddToCart();
-
     }
   });
 });
