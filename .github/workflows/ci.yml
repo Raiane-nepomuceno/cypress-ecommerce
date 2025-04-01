@@ -1,14 +1,25 @@
 name: End-to-end tests
-on: push
+
+on: 
+  push:
+    branches:
+      - main  
+
 jobs:
   cypress-run:
     runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cypress run
+
+      - name: Set up Cypress
         uses: cypress-io/github-action@v6
         env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-        with:
-          command: npm run test:cloud
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY_NEW }}  
+          
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests
+        run: npm run test:cloud  
