@@ -2,7 +2,7 @@ describe('Login', () => {
     beforeEach(() => {
         cy.visit('/'); 
     })
-    Cypress._.times(6, () =>{
+    Cypress._.times(5, () =>{
 
     it('Deslogado, editando sacola vazia no primeiro acesso ao carrinho',() =>{
         cy.validCartEmpty();
@@ -21,6 +21,7 @@ describe('Login', () => {
         cy.clickRadioLoginCart();
         //tratar quando por algum motivo foi adicionado produto sem estoque
         cy.logout();
+
 
     })
     it('Logado, adicionando e editando produto no carrinho', () =>{

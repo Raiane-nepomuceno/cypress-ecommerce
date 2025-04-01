@@ -43,15 +43,16 @@ Cypress.Commands.add('validMessageWarningCartEmpty',()=>{
 Cypress.Commands.add('configViewPortAddCart',()=>{
   cy.viewport(1230, 660); // Ajuste a resolução para garantir que o botão seja visível
 })
-Cypress.Commands.add('addProductCart',()=>{
-    cy.filterInStock();
-    cy.wait(3000);
-    cy.clickRandomProduct();
-    //cy.clickAddToCart();
-    cy.checkSelectPDP();
-    cy.validTextCart();
+Cypress.Commands.add('addProductCart', () => {
+  cy.intercept('GET', '**/mz_filter/product**').as('loadProducts'); // Aguarda os produtos
+  cy.filterInStock();
+  cy.wait('@loadProducts'); // Aguarda a requisição antes de continuar
+  
+  cy.clickRandomProduct();
+  cy.checkSelectPDP();
+  cy.validTextCart();
+})
 
-});
 Cypress.Commands.add('clickAddToCart', () => {
   // Intercepta a requisição POST para adicionar o item ao carrinho
   cy.intercept('POST', '/index.php?route=checkout/cart/add').as('addToCartRequest');
@@ -183,90 +184,3 @@ Cypress.Commands.add('inputCommentsAboutOrder',()=>{
       .scrollIntoView()
       .type(text);
 });
-Cypress.Commands.add('selectTermsAndCondictions',()=>{
-  cy.scrollTo('bottom');
-  cy.get('#input-agree').check({force:true});
-});
-Cypress.Commands.add('clickButtonSaveAddress',()=>{
-  cy.scrollTo('bottom');
-  cy.get('#button-save')
-    .should('be.visible')
-    .scrollIntoView()
-    .click();
-
-
-});
-Cypress.Commands.add('billingAddress',()=>{
-  //const text = faker.lorem.sentence();
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
-  const word = faker.lorem.words();
-
-  cy.get('#input-payment-firstname')  // Selecione o campo desejado
-  .then(($campo) => {
-    // Verifica se o campo existe
-    if ($campo.length) {
-      //cy.wait(3000);
-      // Se o campo existir, preenche com o valor desejado
-      cy.wrap($campo).type(firstName);
-      cy.get('#input-payment-lastname').type(lastName);
-      cy.get('#input-payment-company').type(word);
-      cy.get('#input-payment-address-1').type(word);
-      cy.get('#input-payment-address-2').type(word);
-      cy.get('#input-payment-city').type(word);
-      cy.get('#input-payment-postcode').type('13560470');
-      cy.get('#input-payment-country').select('30');
-      cy.get('#input-payment-zone').select('440');
-      cy.validatePageConfirmAddress();
-    
-    } else {
-      // Se o campo não existir, avança para o próximo passo (pode ser um clique, navegação, etc.)
-      cy.clickButtonSaveAddress(); // Substitua pelo seletor correto
-    }
-  });
-
-
-});
-Cypress.Commands.add('validatePageConfirmAddress',()=>{
-  // Intercepta a requisição POST para salvar o endereço
-  cy.intercept('POST', '/index.php?route=extension/maza/checkout/save').as('saveAddressRequest');
-  
-  // Intercepta a requisição GET para a página de confirmação
-  cy.intercept('GET', '/index.php?route=extension/maza/checkout/confirm').as('checkoutConfirm');
-    // Clica no botão que dispara a navegação (salvar endereço)
-  cy.clickButtonSaveAddress();
-
-  cy.wait('@checkoutConfirm', { timeout: 15000 }).then((interception) => {
-    // Verifica se a resposta foi HTML (indicando erro no servidor)
-    if (interception.response.body.includes('<html>')) {
-      cy.log('Resposta inesperada (HTML) recebida: ' + interception.response.body);
-      
-      // Se a resposta contiver o erro de "Método de pagamento necessário"
-      if (interception.response.body.includes("Warning: Payment method required!")) {  
-        cy.log('Erro de pagamento detectado. Repreenchendo os campos...');
-        
-        // Preenche novamente os campos de país e região/estado
-        cy.billingAddress();
-
-        // Clica no botão de continuar para submeter novamente
-        cy.get('#button-continue').should('be.visible').click({ force: true });
-        cy.log('Campos de país e região/estado preenchidos novamente e continuando...');
-        
-        // Tenta novamente esperar pela requisição de confirmação após preencher os campos
-        cy.wait('@checkoutConfirm', { timeout: 15000 }).then((finalInterception) => {
-          if (finalInterception.response.statusCode === 200) {
-            cy.log('Requisição de confirmação realizada com sucesso após preencher os campos de pagamento');
-          } else {
-            cy.log('Erro na requisição de confirmação após preencher os campos de pagamento. Status Code:', finalInterception.response.statusCode);
-            assert.fail('Falha na requisição de confirmação após corrigir erro de pagamento');
-          }
-        });
-      } else {
-        assert.fail('Esperado JSON, mas a resposta foi HTML, indicando erro no servidor');
-      }
-    } else {
-      // Caso a requisição de confirmação tenha retornado o esperado
-      cy.log('Requisição de confirmação realizada com sucesso');
-    }
-  });
-})

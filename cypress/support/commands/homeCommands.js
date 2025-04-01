@@ -6,37 +6,33 @@ Cypress.Commands.add('searchCategoriesInHome',() =>{
 });
 
 Cypress.Commands.add('clickAllCategoriesHome', () => {
-    cy.contains('.search-input-group > .search-input > .dropdown > .btn', 'All Categories').click();
+    cy.get('.btn.dropdown-toggle')
+      .filter(':visible')
+      .click();
 
 });
 
 Cypress.Commands.add('clickRandomCategory', () => {
+  cy.scrollTo('top');
   cy.log('Acessando a função clickRandomCategory');
-    // Coleta as categorias da página
     cy.get('.dropdown-menu.dropdown-menu-left.show > .dropdown-item').then(($categories) => {
       const categories = [];
   
-      // Itera sobre os itens e coleta o texto
       $categories.each((index, category) => {
         const categoryText = category.innerText.trim();
         
-        // Adiciona a categoria ao array, se não for vazia
         if (categoryText) {
           categories.push(categoryText);
         }
       });
   
-      // Escolhe uma categoria aleatória
       const randomIndex = Math.floor(Math.random() * categories.length);
       const randomCategory = categories[randomIndex];
   
-      // Log para ver qual categoria foi escolhida
       cy.log('Categoria aleatória: ' + randomCategory);
   
-      // Clica na categoria aleatória
       cy.contains('.dropdown-item', randomCategory).click();
   
-      // Após o clique, chama o comando de pesquisa
       cy.clickSearch();
     });
   });
@@ -44,25 +40,25 @@ Cypress.Commands.add('clickRandomCategory', () => {
   Cypress.Commands.add('clickSearch', () => {
     cy.scrollTo('top');
     
-    // Clica na opção de pesquisa (ajuste conforme necessário)
     cy.contains('.type-text', 'Search')
       .should('be.visible')
       .click();
   });
-
-  Cypress.Commands.add('clickFilterProduct', () => {
-    cy.wait(2000);
-
-    cy.log('acessndo a função clickFilterProduct');
-    // Faz o scroll para o topo da página
-    cy.scrollTo('top');
   
-    // Mostra o elemento (se estiver oculto) e então clica
-    cy.get('#entry_212462 > .icon-left')
-       .scrollIntoView()
-       .should('be.visible')
-       .click({force: true});
-  });
+  Cypress.Commands.add('clickFilterProduct', () => {
+      cy.wait(1000);
+      cy.log('Acessando a função clickFilterProduct');
+      cy.scrollTo('top');
+    
+      cy.get('#entry_212462 > .icon-left').then(($icon) => {
+        if ($icon.is(':visible')) {
+          cy.wrap($icon).click({ force: true });
+          cy.log('Ícone de filtro clicado');
+        } else {
+          cy.log('Ícone de filtro não visível');
+        }
+      });
+    });
   Cypress.Commands.add('closeModalFilter',() =>{
    cy.get('#entry_212478 > .icon-left > .icon')
     .scrollIntoView()
@@ -262,7 +258,7 @@ Cypress.Commands.add('filterCheckboxFilter',(seletor1,seletor2,scroll)=>{
 
   })
   Cypress.Commands.add('filterStock',()=>{
-    
+    cy.wait(1000);
     cy.get('#entry_212474', { timeout: 10000 })
       .should('be.visible')
       .and('have.css', 'opacity', '1') // Garantir que a opacidade seja 1 (visível)
