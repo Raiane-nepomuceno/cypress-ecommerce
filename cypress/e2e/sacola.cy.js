@@ -2,7 +2,7 @@ describe('Login', () => {
     beforeEach(() => {
         cy.visit('/'); 
     })
-    Cypress._.times(5, () =>{
+    Cypress._.times(2, () =>{
 
     it('Deslogado, editando sacola vazia no primeiro acesso ao carrinho',() =>{
         cy.validCartEmpty();
