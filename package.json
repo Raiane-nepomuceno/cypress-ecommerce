@@ -5,18 +5,21 @@
   "main": "index.js",
   "scripts": {
     "cy:open": "cypress open",
-    "test": "cypress run"
+    "cy:open:mobile":"cypress open --config viewportWidth=410 viewportHeight=860",
+    "test": "cypress run",
+    "test:mobile":"cypress run --config viewportWidth=410 viewportHeight=860",
+    "test:cloud":"cypress run --record"
     },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Raiane-nepomuceno/cypress-ecommerce.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Raiane-nepomuceno/cypress-ecommerce/issues"
-  },
+  "keywords": [
+    "Cypress Cloud",
+    "GitHub Actions"
+  ],
+  "author": "Raiane Nepomuceno",
+  "license": "MIT",
   "homepage": "https://github.com/Raiane-nepomuceno/cypress-ecommerce#readme",
   "devDependencies": {
     "cypress": "^13.12.0"
