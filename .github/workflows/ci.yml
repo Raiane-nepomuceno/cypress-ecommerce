@@ -16,7 +16,7 @@ jobs:
       - name: Set up Cypress
         uses: cypress-io/github-action@v6
         env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY_NEW }}  
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}  
           
       - name: Install dependencies
         run: npm ci
