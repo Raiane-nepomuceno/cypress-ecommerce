@@ -10,7 +10,7 @@ Este projeto contém a automação de testes para uma aplicação de e-commerce 
 ## Pré-Requisitos:
 É necessário ter instalado o Node.js e npm installed para rodar o projeto.
 
-## Installation
+## Instalação
 
 Para baixar as dependências execute `npm install` (ou `npm i`) para instalar as dependências.
 
