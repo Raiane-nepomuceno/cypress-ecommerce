@@ -60,7 +60,7 @@ Aqui está a estrutura de diretórios do repositório:
   Testa a criação de conta quando as senhas fornecidas não coincidem.
 
 #### Como Executar:
-1. Execute `npx run cy:open` ou `npx cypress run` no terminal para abrir o Cypress.
+1. Execute `npm run cy:open` no terminal para abrir o Cypress.
 2. Para executar executar
 
 ## 2 - Login de Usuário (Login)
