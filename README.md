@@ -106,5 +106,17 @@ Testa a funcionalidade de filtragem de produtos por marca.
 
 - **Filtragem por cor, tamanho e disponibilidade**:
  Testa as opções de filtragem de produtos por cor, tamanho e disponibilidade.
+
+## Resultados dos Testes
+
+Os resultados dos testes end-to-end são gravados e podem ser acessados no **Cypress Cloud**. Para revisar a execução dos testes, incluindo falhas, vídeos e capturas de tela, acesse o painel de resultados no link abaixo:
+
+[Cypress Dashboard - Resultados dos Testes](https://cloud.cypress.io/projects/veu83i/runs?branches=%5B%5D&committers=%5B%5D&flaky=%5B%5D&page=1&status=%5B%5D&tags=%5B%5D&tagsMatch=ANY&timeRange=%7B%22startDate%22%3A%222024-04-03%22%2C%22endDate%22%3A%222025-04-03%22%2C%22id%22%3A%22LAST_12_MONTHS%22%7D)
+
+
+> **Nota**: O Cypress Cloud requer login para acessar os resultados completos.
+
+
+
  
  
