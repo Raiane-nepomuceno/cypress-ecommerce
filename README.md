@@ -61,7 +61,6 @@ Aqui está a estrutura de diretórios do repositório:
 
 #### Como Executar:
 1. Execute `npm run cy:open` no terminal para abrir o Cypress.
-2. Para executar executar
 
 ## 2 - Login de Usuário (Login)
 
