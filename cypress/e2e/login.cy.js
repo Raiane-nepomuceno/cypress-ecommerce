@@ -2,7 +2,6 @@ describe('Login', () => {
     beforeEach(() => {
         cy.visit('/'); 
     })
-    Cypress._.times(1, () =>{
 
     it('Realizando login com dados válidos',() =>{
         cy.login('home');
@@ -20,7 +19,4 @@ describe('Login', () => {
     
 
 })
-})
-
-//fazer o cenario de quando tenta realizar o cadastro de usuario ja existente e logo em seguida fazer o login
 

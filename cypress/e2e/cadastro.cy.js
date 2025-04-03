@@ -1,10 +1,8 @@
 describe('Criar Conta', () => {
   beforeEach(() => {
-    // Visita o site antes de cada teste
     cy.visit('/');
   
   })
-  Cypress._.times(2, () =>{
 
   it('Cadastro de novo usuário marcando o checkbox de aceite dos termos de privacidade', () => {
     cy.createAccount('checkboxTermosMarcado')
@@ -23,6 +21,5 @@ describe('Criar Conta', () => {
   })
 
 
-})
 })
 

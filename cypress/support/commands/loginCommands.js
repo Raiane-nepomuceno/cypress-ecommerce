@@ -136,5 +136,22 @@ Cypress.Commands.add('validMessageUpdatePassword', (newPassword) => {
 });
 Cypress.Commands.add('clickBtnContinue',()=>{
   cy.contains('.buttons > .btn', 'Continue').click();  
-})
-  
+});
+// cypress/support/commands.js
+
+Cypress.Commands.add('checkIfLoggedIn', () => {
+  cy.visit('/index.php?route=account/account');
+  cy.get('body').then(($body) => {
+    const isLoggedOut = $body.find('.list-group-item').filter(':contains("Login")').length > 0;
+    
+    // Usando cy.wrap() para armazenar o estado de login
+    if (isLoggedOut) {
+      cy.wrap(false).as('isLoggedIn');  // Armazena que o usuário está deslogado
+      cy.log('Usuário deslogado');
+    } else {
+      cy.wrap(true).as('isLoggedIn');  // Armazena que o usuário está logado
+      cy.log('Usuário logado');
+    }
+  });
+});
+

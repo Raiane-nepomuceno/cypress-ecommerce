@@ -25,11 +25,14 @@ describe('Home', () => {
     it('filtrando produtos da categoria pela disponibilidade',()=>{
       cy.filterAvailability();
     })
-    it.only('filtrando os produtos da busca de categoria pelo sort-by',()=>{
+    it('filtrando os produtos da busca de categoria pelo sort-by',()=>{
       cy.sortByProducts();
     })
     it('filtrando os produtos da busca de categoria pelo filtro show',()=>{
       cy.showProducts();
+    })
+    it('filtrando os produtos com estoque',()=>{
+      cy.filterInStock();
     })
     
 })

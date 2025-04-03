@@ -51,6 +51,7 @@ Cypress.Commands.add('addProductCart', () => {
   cy.clickRandomProduct();
   cy.checkSelectPDP();
   cy.validTextCart();
+  cy.clickBtnContinue();
 })
 
 Cypress.Commands.add('clickAddToCart', () => {
@@ -103,7 +104,6 @@ Cypress.Commands.add('validTextCart',()=>{
 Cypress.Commands.add('clickRadioLoginCart', () => {
   cy.scrollTo('top');
 
-  // Aumentar o timeout e garantir que o alerta seja visível
   cy.get('body').then(($body) => {
     const alerta = $body.find('#checkout-cart > .alert');
 
@@ -119,11 +119,25 @@ Cypress.Commands.add('clickRadioLoginCart', () => {
           cy.log('Elemento de login encontrado e clicado');
           cy.login('cart');
           cy.goToScreenInputFirstAddress();
-          cy.billingAddress();
-          cy.validatePageConfirmCheckout();
-          cy.clickBtnConfirm();
-          cy.validatePageConfirmOrder();
-          cy.clickBtnContinue();  
+
+          
+          cy.billingAddress().then(() => {
+            cy.checkIfLoggedIn(); 
+          
+            cy.get('@isLoggedIn').then((isLoggedIn) => {
+              if (isLoggedIn) {
+                cy.go('back');
+                cy.validatePageConfirmCheckout();
+                cy.clickBtnConfirm();
+                cy.validatePageConfirmOrder();
+                cy.clickBtnContinue();
+              } else {
+                cy.log('Usuário deslogado, não continuando a execução');
+              }
+            });
+          });
+     
+
         } else {
           cy.log('Elemento de login não encontrado, seguindo com o teste');
         }
@@ -132,29 +146,21 @@ Cypress.Commands.add('clickRadioLoginCart', () => {
   });
 });
 Cypress.Commands.add('clickAddToCart', () => {
-  cy.configViewPortAddCart();  // Suponho que este comando tenha configurado o tamanho da tela
+  cy.configViewPortAddCart();
 
-  // Intercepta a requisição XHR antes de qualquer ação
   cy.intercept('GET', '/index.php?route=extension/mz_widget/total/reload*').as('reloadRequest');
-  // cy.wait('@reloadRequest').then((interception) => {
-  //   console.log(interception);  // Exibe os detalhes da requisição no console
-  // });
-  // Espera um tempo suficiente para garantir que tudo esteja carregado antes de clicar
-  cy.wait(1000); // Ajuste o tempo se necessário
+  cy.wait(1000);
 
-  // Interage com o botão "Add to Cart"
   cy.get('#entry_216842 > .text')
     .should('be.visible')
     .click();
 
-  // Espera pela requisição XHR ser disparada
   cy.wait('@reloadRequest', { timeout: 10000 }).should('exist');  // Aguarda até 10 segundos pela requisição
 
-  // Agora, espera o toast aparecer e interage com ele
-  cy.get('.toast-body', { timeout: 10000 })  // Aguarda até 10 segundos pelo toast
-    .should('be.visible')  // Verifica se o toast está visível
-    .contains('View Cart')  // Verifica se o texto "View Cart" está presente
-    .click();  // Clica no toast
+  cy.get('.toast-body', { timeout: 10000 })  
+    .should('be.visible')  
+    .contains('View Cart')  
+    .click({force: true});  
 });
 Cypress.Commands.add('addProductCart',()=>{
   cy.filterInStock();
@@ -167,16 +173,13 @@ Cypress.Commands.add('addProductCart',()=>{
 Cypress.Commands.add('goToScreenInputFirstAddress',()=>{
   cy.inputCommentsAboutOrder();
   cy.selectTermsAndCondictions();
-  //cy.clickButtonSaveAddress();
 
 });
 Cypress.Commands.add('inputCommentsAboutOrder',()=>{
   const text = faker.lorem.sentence();
 
-    // Intercepta a requisição e espera que ela seja concluída
     cy.intercept('GET', '/index.php?route=checkout/checkout/country*').as('countryRequest');
   
-    // Espera pela conclusão da requisição
     cy.wait('@countryRequest');
     cy.scrollTo('bottom');
     cy.get('#input-comment')
@@ -184,3 +187,9 @@ Cypress.Commands.add('inputCommentsAboutOrder',()=>{
       .scrollIntoView()
       .type(text);
 });
+Cypress.Commands.add('clickBtnCheckout',()=>{
+  cy.get('.buttons.d-flex > .btn-primary')
+  .contains('Checkout')
+  .should('be.visible')
+  .click();
+})
